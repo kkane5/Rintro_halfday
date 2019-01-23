@@ -133,7 +133,7 @@ options(stringsAsFactors=FALSE)   # avoids reading in factors when reading in fi
 dof = read.csv("ca_dof_popchg_e6.csv")
 
 # (2) Dowload median home values from Census' factfinder (factfinder2.census.gov), Advanced Search.
-# All California counties, 2017 ACS 1-year sample 
+# All California counties, 2017 ACS 5-year sample 
 # B25077: Median home value
 # Modify table to transpose (so the counties are rows), and download to "Use" the data as a .csv
 # Look at it in Excel. Note the 2-part header. Then read into R, omitting the first 2 lines.  
