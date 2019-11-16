@@ -1,0 +1,42 @@
+GEO.id,GEO.id2,GEO.display-label,HD01_VD01,HD02_VD01
+Id,Id2,Geography,Estimate; Median value (dollars),Margin of Error; Median value (dollars)
+0500000US06001,06001,"Alameda County, California",781000,11652
+0500000US06007,06007,"Butte County, California",268900,14193
+0500000US06013,06013,"Contra Costa County, California",642300,10632
+0500000US06017,06017,"El Dorado County, California",472100,15104
+0500000US06019,06019,"Fresno County, California",248700,6620
+0500000US06023,06023,"Humboldt County, California",325200,15446
+0500000US06025,06025,"Imperial County, California",200700,9841
+0500000US06029,06029,"Kern County, California",205700,5314
+0500000US06031,06031,"Kings County, California",224500,6237
+0500000US06033,06033,"Lake County, California",210500,16800
+0500000US06037,06037,"Los Angeles County, California",588700,3462
+0500000US06039,06039,"Madera County, California",240800,11751
+0500000US06041,06041,"Marin County, California",1014000,43118
+0500000US06045,06045,"Mendocino County, California",409900,26575
+0500000US06047,06047,"Merced County, California",253700,11710
+0500000US06053,06053,"Monterey County, California",517200,24858
+0500000US06055,06055,"Napa County, California",628500,18557
+0500000US06057,06057,"Nevada County, California",437200,14874
+0500000US06059,06059,"Orange County, California",679400,5443
+0500000US06061,06061,"Placer County, California",468400,7063
+0500000US06065,06065,"Riverside County, California",352700,3476
+0500000US06067,06067,"Sacramento County, California",353400,3797
+0500000US06071,06071,"San Bernardino County, California",326600,4711
+0500000US06073,06073,"San Diego County, California",563800,6340
+0500000US06075,06075,"San Francisco County, California",1104100,24312
+0500000US06077,06077,"San Joaquin County, California",349200,7034
+0500000US06079,06079,"San Luis Obispo County, California",574400,17041
+0500000US06081,06081,"San Mateo County, California",1087100,19715
+0500000US06083,06083,"Santa Barbara County, California",567600,43640
+0500000US06085,06085,"Santa Clara County, California",971300,10458
+0500000US06087,06087,"Santa Cruz County, California",775000,23232
+0500000US06089,06089,"Shasta County, California",248900,8442
+0500000US06095,06095,"Solano County, California",411700,9716
+0500000US06097,06097,"Sonoma County, California",628400,11445
+0500000US06099,06099,"Stanislaus County, California",288200,5423
+0500000US06101,06101,"Sutter County, California",278300,10130
+0500000US06107,06107,"Tulare County, California",204300,7515
+0500000US06111,06111,"Ventura County, California",592500,8851
+0500000US06113,06113,"Yolo County, California",430400,20155
+0500000US06115,06115,"Yuba County, California",253000,15893
