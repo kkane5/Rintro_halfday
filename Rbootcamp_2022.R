@@ -117,12 +117,12 @@ par(mfrow=c(1,2))  # par stands for graphical parameter. mfrow specifies the num
 hist(data$pctsenior05)   # left plot
 hist(data$pctsenior20)   # right plot 
 par(mfrow=c(1,2))   # doing this again clears the plots 
-hist(data$pctsenior05, breaks=seq(0,0.35,0.05), main="2001", ylab="World Regions", xlab="Percent Senior", col="forestgreen")
+hist(data$pctsenior05, breaks=seq(0,0.35,0.05), main="2005", ylab="World Regions", xlab="Percent Senior", col="forestgreen")
 hist(data$pctsenior20, breaks=seq(0,0.35,0.05), main="2020", ylab="World Regions", xlab="Percent Senior", col="dodgerblue")
 
 # Adding a guideline (abline) to each histogram. can be vertical (v) or horizontal (h)
 par(mfrow=c(1,2))
-hist(data$pctsenior05, breaks=seq(0,0.35,0.05), main="2001", ylab="World Regions", xlab="Percent Senior", col="forestgreen")
+hist(data$pctsenior05, breaks=seq(0,0.35,0.05), main="2005", ylab="World Regions", xlab="Percent Senior", col="forestgreen")
 abline(v=mean(data$pctsenior05, na.rm=T), col="black", lty=3, lwd=2)
 hist(data$pctsenior20, breaks=seq(0,0.35,0.05), main="2020", ylab="World Regions", xlab="Percent Senior", col="dodgerblue")
 abline(v=mean(data$pctsenior20, na.rm=T), col="black", lty=3, lwd=2)
@@ -281,9 +281,9 @@ setwd("C:/Users/kane/Dropbox/usc_emup/R_tutorials")
 data = read.csv("oecd.csv")
 
 # Make a sorted table and a barplot of the number of regions per country 
-table(data$country)
-sort(table(data$country), decreasing=TRUE)  # the sort command, with the argument decreasing=TRUE will sort the table in decreasing order.
-barplot(sort(table(data$country), decreasing=TRUE), cex.names=0.8,
+table(data$Country)
+sort(table(data$Country), decreasing=TRUE)  # the sort command, with the argument decreasing=TRUE will sort the table in decreasing order.
+barplot(sort(table(data$Country), decreasing=TRUE), cex.names=0.8,
         main="Number of regions per country")   # a barplot can be made (can also add colors, etc.). cex.names makes the text smaller so all the country names fit.
 
 # Use the summaryBy command (part of the doBy package) to summarize by larger spatial unit 
