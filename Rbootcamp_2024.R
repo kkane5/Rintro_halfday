@@ -4,6 +4,7 @@
 # by Kevin Kane, PhD
 
 # Some R-esources!
+# Quick installation guide: https://rstudio-education.github.io/hopr/starting.html 
 # R website (open source): www.r-project.org 
 # Rstudio website (freeware): www.rstudio.com 
 # Quick-R: www.statmethods.net 
@@ -373,6 +374,13 @@ plot(counties["pop21"], breaks="jenks", key.pos=2, pal=sf.colors(10),
 
 
 
+
+
+
+
+
+
+
 ######################################
 ###### (7) Using the Census API ######
 ######################################
@@ -380,6 +388,8 @@ plot(counties["pop21"], breaks="jenks", key.pos=2, pal=sf.colors(10),
 #### Install TidyCensus & tigris, and load other packages we'll need to use the Census API ####
 install.packages("tidycensus")
 install.packages("tigris")
+install.packages("sf")    # If you ran this in portion 6, you don't need to do it again here.
+install.packages("doBy")  # If you ran this in portion 6, you don't need to do it again here. 
 library(tidycensus)
 library(tigris)
 library(sf)
@@ -405,47 +415,43 @@ abline(h=seq(0,700,100), col="darkgrey", lty=3)
 box()
 
 #### FINDING GOOD CENSUS VARIABLES TO USE #### 
-# Focusing on the most recent ACS 5-year estimates (2020 at the time of this writing) is a good way to go. 
+# Focusing on the most recent ACS 5-year estimates (2022 at the time of this writing) is a good way to go. 
 # All the Census API available datasets are at https://api.census.gov/data.html 
-# See also, "useful_2020_census_vars_KKguide.xlsx"
-# You can also extract a list of variables using the code here.
-acsvars = load_variables(2020, "acs5", cache = TRUE)
-head(acsvars)
-nrow(acsvars)   # tells us how many variables
-length(unique(unlist(acsvars$concept)))   # tells us how many unique "concepts" there are
+# Search for 'American Community Survey: 5-Year Estimates: Detailed Tables' and go to 2022.   
+# If you really want to see them in RStudio, you can call & export them this way: 
+acsvars = load_variables(2022, "acs5", cache = TRUE)
+View(acsvars)
 write.csv(acsvars, "acsvars.csv")   # export to .csv so you explore easily in Excel 
+# See also, "useful_2022_census_vars_KKguide.xlsx"
+
 
 #### ASSEMBLE A SET OF TRACT-LEVEL VARIABLES FOR A COUNTY #### 
-# Get a single variable (Median rent)
-tr = get_acs(geography="tract", state="CA", county="Orange", variables="B25031_001", 
-               year=2020, geometry=TRUE)
-tr$medrent = tr$estimate  # create a renamed to avoid future confusion
+# Get a single variable (Median age of housing stock)
+tr = get_acs(geography="tract", state="CA", county="Orange", variables="B25035_001", 
+               year=2022, geometry=TRUE)
+tr$homeage = tr$estimate  # create a renamed to avoid future confusion
 tr$estimate = NULL   # get rid of the old one 
+nrow(tr)
 
-# Add additional variables with a single extraction by putting them into a list. 
-# Total population: B00101_001
-# Median household income: B19013_001
-# Median age of housing: B25035_001
+# What if you need more than one variable? tidycensus will extract them... but there'll be one entry PER VARIABLE.  Notice the number of rows:
+varlist = c("B01001_001", "B25035_001", "B19013_001")   # this is total population, housing stock age, and median household income, respectively
+tr_plus =  get_acs(geography="tract", state="CA", county="Orange", 
+                   variables=varlist, year=2022)
+nrow(tr_plus)
 
-varlist = c("B01001_001", "B19013_001", "B25035_001", "B08101_009")
-tr_plus =  get_acs(geography="tract", state="CA", county="Orange", variables=varlist, year=2020)
-
-# Use a match command to bind each new variable to the original data frame (vent). name the variables something intuitive.
-# Since the data are stored long, each match operation requires a subset operation first.
+# If you really want, you can use 'match' to bind each additional variables to your original extract (tr), and rename them something intuitive.  
 tr_a = subset(tr_plus, variable=="B01001_001")
 tr$totpop = tr_a$estimate[match(tr$GEOID, tr_a$GEOID)]
 
 tr_b = subset(tr_plus, variable=="B19013_001")
 tr$medhhinc = tr_b$estimate[match(tr$GEOID, tr_b$GEOID)]
 
-tr_c = subset(tr_plus, variable=="B25035_001")
-tr$medhomeage = tr_c$estimate[match(tr$GEOID, tr_c$GEOID)]
-
 # Remember you can plot this as a map too! 
-plot(tr['medhhinc'])
+plot(tr['homeage'])
 
 # Finally, we can export this to a shapefile so we can use it elsewhere, too.
 st_write(tr, "orange_merge.shp")
+
 
 
 ######################################
@@ -454,12 +460,18 @@ st_write(tr, "orange_merge.shp")
 # I've built this loop to extract all of "Kevin's commonly used variables" in one step. 
 # Extract first variable (total population) + geometry
 # You can declare your parameters below: 
-mystate = "IL"
-mycounty = "Cook"
+mystate = "FL"
+mycounty = "Hillsborough"
 mygeography = "tract"
 myyear = 2022
 mysurvey = "acs5"
-d = get_acs(geography=mygeography, state=mystate, county=mycounty, variables="B01001_001", year=myyear, survey=mysurvey, geometry=TRUE)
+d = get_acs(geography=mygeography, 
+            state=mystate, 
+            county=mycounty, 
+            variables="B01001_001", 
+            year=myyear, 
+            survey=mysurvey, 
+            geometry=TRUE)
 
 # Extract all other variables 
 colnames(d)[4] = "totpop"
@@ -479,7 +491,13 @@ varlist = c('B19001_001', 'B01002_001', 'B03002_001', 'B03002_003', 'B03002_004'
             'B01001_004', 'B01001_005', 'B01001_006', 'B01001_020', 'B01001_021', 'B01001_022', 'B01001_023', 'B01001_024',
             'B01001_025', 'B01001_027', 'B01001_028', 'B01001_029', 'B01001_030', 'B01001_044', 'B01001_045', 'B01001_046', 
             'B01001_047', 'B01001_048', 'B01001_049')
-d2 =  get_acs(geography=mygeography, state=mystate, county=mycounty, variables=varlist, year=myyear, survey=mysurvey, geometry=TRUE)
+d2 =  get_acs(geography=mygeography, 
+              state=mystate, 
+              county=mycounty, 
+              variables=varlist, 
+              year=myyear, 
+              survey=mysurvey, 
+              geometry=TRUE)
 varnames = c('totHH', 'medage', 'tot4race', 'wnh', 'bnh', 'aiannh', 'anh', 'nhpinh', 'othnh', 'multinh', 'hisp', 'tot4_cit', 'noncit', 'tot4_mv', 'no_mv', 
              'in_cnty_mv', 'in_st_mv', 'out_st_mv', 'tot4_vehic', 'vehic0', 'vehic1', 'vehic2', 'vehic3', 'vehic4', 'vehic5pl', 
              'tot4_comm', 'comm_sov', 'comm_walk', 'comm_pool', 'comm_trans', 'comm_oth', 'comm_wfh', 'tot4_educ', 'educ_none', 
@@ -487,7 +505,7 @@ varnames = c('totHH', 'medage', 'tot4race', 'wnh', 'bnh', 'aiannh', 'anh', 'nhpi
              'educ_9th', 'educ_10th', 'educ_11th', 'educ_12th', 'educ_hs', 'educ_ged', 'educ_cnud1', 'educ_some', 'educ_asso', 
              'educ_bach', 'educ_mast', 'educ_prof', 'educ_doct', 'hincund10', 'hinc1014', 'hinc1519', 'hinc2024', 
              'hinc2529', 'hinc3034', 'hinc3539', 'hinc4044', 'hinc4549', 'hinc5059', 'hinc6074', 'hinc7599', 'hinc100124', 'hinc125149',
-             'hinc150199', 'hinc200pl', 'medhhinc', 'tot4_work', 'emp', 'medrent', 'medhoval', 'totHU', 'HU2014', 'HU1013', 'HU9', 
+             'hinc150199', 'hinc200pl', 'medhhinc', 'tot4_work', 'emp', 'medrent', 'medhoval', 'totHU', 'HU2020', 'HU1019', 'HU0009', 
              'HU9099', 'HU8089', 'HU7079', 'HU6069', 'HU5059', 'HU4049', 'HU1939', 'medyrblt', 'HU_sfd', 'HU_sfa', 'HU_mf2', 'HU_mf3_4', 
              'HU_mf5_9', 'HU_mf1019', 'HU_mf2049', 'HU_mf50pl', 'HU_mob', 'HU_boatRV', 'tot4_tenu', 'ownerHH', 'renterHH',
              'male0005', 'male0509', 'male1014', 'male1517', 'male6566', 'male6769', 'male7074', 'male7579', 'male8084',
@@ -516,39 +534,104 @@ st_write(d, "C:/Users/kane/Dropbox/usc_emup/R_bootcamp/Cook_tracts_ACS22.shp")
 
 # View some variables
 View(d)
-plot(d['medhhinc'])
-d$pct_wfh = d$comm_wfh/d$tot4_comm*100
+plot(d['medhoval'])
+d$pct_wfh = d$comm_wfh/d$tot4_comm*100   # share of commuters who work-from-home
 plot(d['pct_wfh'])
 
 # View a variable a little more neatly 
-plot(d["medhhinc"], breaks="jenks", key.pos=2, pal=sf.colors(10), 
-     main="2022 Median Household Income in Cook Co., IL Tracts", axes=TRUE)
+plot(d["medhoval"], breaks="jenks", key.pos=2, pal=sf.colors(10), 
+     main="2022 Median Home Value in Hillsborough Tracts", axes=TRUE)
 
 
 
 
-###########################################################
-#### 9.) GET LONGITUDINAL ACS DATA FROM THE CENSUS API ####
-###########################################################
+#############################################################################
+#### 9.) GET LONGITUDINAL ACS DATA (FOR LARGER AND/OR STABLE GEOGRAPHIES ####
+#############################################################################
+# note: this is set up for ACS 1-year, thus 2020 is removed.  Add 2020 back if you want to switch this to 5-yr. ACS
 
-
-
-
-
-
-### Kevin - get longitudinal ACS from API ###
-# November 2023 # 
 list=c(seq(2005,2019), 2021, 2022)
 frame = data.frame(list)
-frame$totcomm = 0
+frame$totcomm = 0   # add a blank field
 frame$wfh = 0
 
+# Declare your location: 
+# note: put your variables directly into the get_acs commands further below
+mysurvey = "acs1"
+mygeography = "county"
+mystate = "IL"
+mycounty = "Cook"
+
+# Example - the WfH share in mygeography since 2005 
 for(i in 1:length(list)){
-  out = get_acs(geography="county", state="CA", county="Ventura", variables="B08101_001", year=list[i], survey="acs1")
+  out = get_acs(geography=mygeography, state=mystate, county=mycounty, variables="B08101_001", year=list[i], survey=mysurvey)
   frame$totcomm[i] = out$estimate
-  out2 = get_acs(geography="county", state="CA", county="Ventura", variables="B08101_049", year=list[i], survey="acs1")
+  out2 = get_acs(geography=mygeography, state=mystate, county=mycounty, variables="B08101_049", year=list[i], survey=mysurvey)
   frame$wfh[i] = out2$estimate
 }
-frame$pct_wfh = frame$wfh/frame$totcomm
+frame$pct_wfh = frame$wfh/frame$totcomm*100
 frame
+
+# Write the file for use later
+write.csv(frame, "Cookcounty_wfh_acs0522.csv")
+
+# Make a line graph
+plot(frame$list, frame$pct_wfh, type="l")
+
+# Make a better line graph
+plot(frame$list, frame$pct_wfh, xlab="Year", ylab = "Percent", type="o", col="dodgerblue",
+     main = "ACS Commute Mode: Work from home (%), Cook County, IL", pch=20, font.main=4)
+abline(h=seq(0,100,5), col="lightgrey", lwd=2, lty=3)
+
+# Make a comparative line graph - 2 geographies 
+plot(frame$list, frame$pct_wfh, xlab="Year", ylab = "Percent", type="o", col="blue",
+     main = "ACS Commute Mode: Work from home (%)", pch=20, font.main=4)
+abline(h=seq(0,100,5), col="lightgrey", lwd=2, lty=3)
+mycounty = "Sangamon"
+# now, run the tidycensus loop above using a different county and add a line to the plot:
+lines(frame$list, frame$pct_wfh, type="o", pch=20, col="red")
+legend("topleft", legend=c("Cook Co., IL", "Sangamon Co., IL"), col=c("blue", "red"), 
+       pch=20, lty=1, bty='n')
+
+
+
+
+
+############################################################
+#### 10.) TRACT-LEVEL MAP OF SOMETHING IN A SINGLE CITY ####
+############################################################
+install.packages("terra")
+install.packages("mapview")
+install.packages("readr")   # this package is required to read in the crosswalk a particular way. 
+library(terra)
+library(mapview)
+library(readr)
+
+# Use a nationwide crosswalk of places to tracts from Geocorr (https://mcdc.missouri.edu/applications/geocorr.html) 
+crosswalk <- read_csv("geocorr2022_tract_to_place_USA.csv", skip=1)   
+crosswalk$GEOID = as.numeric(as.character(paste(crosswalk$`County code`, substr(crosswalk$Tract,1,4), substr(crosswalk$Tract,6,7), sep="")))  # give this crosswalk file the proper tract ID field
+
+my_place = "Riverside city, CA"
+my_variable = "Median Household Income"
+threshold = 0.01   # adds a condition that tract must be at least 1% in that place
+
+# Extract a variable, making sure to indicate the state (and, to save processing time, county) your place is in:
+acsdata <- get_acs(geography = "tract",  
+                   variables = "B19013_001", 
+                   state = "CA",
+                   county = "Riverside",
+                   year = 2022, 
+                   survey = "acs5",
+                   geometry = TRUE)  
+acsdata$GEOID = as.numeric(as.character(acsdata$GEOID))   # quick trick to make sure your numbers aren't stored as text 
+
+trlist = subset(crosswalk, `Place name`==my_place & `tract-to-place allocation factor` > threshold)   
+tr_pl = subset(acsdata, GEOID %in% trlist$GEOID)
+colnames(tr_pl)[grep("estimate", colnames(tr_pl))] = my_variable
+
+# Open in a dynamic map viewer
+mapview(tr_pl, zcol = my_variable)
+
+
+
 
